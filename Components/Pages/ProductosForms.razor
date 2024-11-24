@@ -1,0 +1,87 @@
+﻿@page "/productos/nuevo"
+@page "/productos/editar/{Id:int}"
+@rendermode InteractiveServer
+@inject NavigationManager _navigator;
+@inject IRepositorioProductos _repositorioP;
+
+<h3>@_mensaje Productos</h3>
+
+<div style="background-color: #fce4ec; border: 2px solid #f48fb1; border-radius: 10px; padding: 20px; max-width: 600px; margin: 0 auto; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+    <h3 style="text-align: center; color: #ad1457; margin-bottom: 20px;">Editar Producto</h3>
+    <EditForm Model="_producto" FormName="frmProducto" OnValidSubmit="GuardarProducto">
+        <DataAnnotationsValidator />
+
+        <div class="row mb-3">
+            <label for="txtNombreProducto" class="col-2 col-form-label" style="color: #880e4f;">Nombre Del Producto</label>
+            <div class="col-10">
+                <InputText id="txtNombreProducto" class="form-control" style="border: 1px solid #f48fb1;" @bind-Value="_producto.NombreProducto" />
+                <ValidationMessage For="()=>_producto.NombreProducto" style="color: #d32f2f;" />
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <label for="txtTipoProducto" class="col-2 col-form-label" style="color: #880e4f;">Tipo De Producto</label>
+            <div class="col-10">
+                <InputText id="txtTipoProducto" class="form-control" style="border: 1px solid #f48fb1;" @bind-Value="_producto.TipoProducto" />
+                <ValidationMessage For="()=>_producto.TipoProducto" style="color: #d32f2f;" />
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <label for="txtDescripcion" class="col-2 col-form-label" style="color: #880e4f;">Descripcion</label>
+            <div class="col-10">
+                <InputText id="txtDescripcion" class="form-control" style="border: 1px solid #f48fb1;" @bind-Value="_producto.Descripcion" />
+                <ValidationMessage For="()=>_producto.Descripcion" style="color: #d32f2f;" />
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <label for="txtTelefono" class="col-2 col-form-label" style="color: #880e4f;">Precio</label>
+            <div class="col-10">
+                <InputNumber id="txtPrecio" class="form-control" style="border: 1px solid #f48fb1;" @bind-Value="_producto.Precio" />
+                <ValidationMessage For="()=>_producto.Precio" style="color: #d32f2f;" />
+            </div>
+        </div>
+
+        <div style="text-align: center;">
+            <button type="submit" class="btn" style="background-color: #f06292; color: white; border-radius: 5px;" @onclick="GuardarProducto">Guardar</button>
+            <button class="btn ms-3" style="background-color: #d32f2f; color: white; border-radius: 5px;" @onclick="Cancelar" @onclick:preventDefault>Cancelar</button>
+        </div>
+    </EditForm>     
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    private string _mensaje = "";
+    private Producto? _producto = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id > 0)
+        {
+            _producto = await _repositorioP.Get(Id);
+            _mensaje = "Modificar";
+        }
+        else
+        {
+            _mensaje = "Nuevo";
+        }
+    }
+    private async void GuardarProducto()
+    {
+        if (Id > 0)
+        {
+            await _repositorioP.UpdateP(Id, _producto!);
+        }
+        else
+        {
+            await _repositorioP.AddP(_producto!);
+        }
+        Cancelar();
+    }
+    private void Cancelar()
+    {
+        _navigator.NavigateTo("/Productos");
+    }
+}
